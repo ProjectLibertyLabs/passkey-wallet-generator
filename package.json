@@ -1,0 +1,35 @@
+{
+  "name": "passkey-wallet-generator",
+  "version": "0.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest",
+    "build": "npx esbuild src/index.ts --minify --bundle --outfile=dist/wallet-generator.js",
+    "dev": "esbuild src/index.ts example/index.js --bundle --outdir=example/dist --serve=3000 --watch --servedir=example",
+    "lint": "tsc --noEmit && npx eslint && npx prettier . --check",
+    "format": "npx eslint --fix && npx prettier . --write"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AmplicaLabs/passkey-wallet-generator.git"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/AmplicaLabs/passkey-wallet-generator/issues"
+  },
+  "homepage": "https://github.com/AmplicaLabs/passkey-wallet-generator#readme",
+  "description": "",
+  "devDependencies": {
+    "@eslint/js": "^9.5.0",
+    "@types/eslint__js": "^8.42.3",
+    "esbuild": "0.21.5",
+    "eslint": "^8.57.0",
+    "jsdom": "^24.1.0",
+    "prettier": "3.3.2",
+    "typescript": "^5.5.2",
+    "typescript-eslint": "^7.13.1",
+    "vitest": "^1.6.0"
+  }
+}

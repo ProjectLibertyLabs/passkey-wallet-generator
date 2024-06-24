@@ -1,0 +1,38 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Verify PR
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint-build-test:
+    name: 'Lint Build Test'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: 'npm'
+
+      - name: Dependencies
+        run: npm ci
+
+      - name: Lint 🧶
+        run: npm run lint
+
+      - name: Build 🛠️
+        run: npm run build
+
+      - name: Unit Test 🧪
+        run: npm test

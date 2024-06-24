@@ -1,0 +1,42 @@
+<!doctype html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Passkey Interaction Example</title>
+    <script type="module" src="./dist/example/index.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+  </head>
+  <body style="padding: 20px">
+    <header>
+      <h1>Example</h1>
+    </header>
+    <article>
+      <h2>Step 1: Generate</h2>
+      <form id="generate">
+        <button type="submit">Generate</button>
+      </form>
+      <h5>Output</h5>
+      <pre id="generateResp"></pre>
+    </article>
+    <article>
+      <h2>Step 2: Sign</h2>
+      <form id="sign">
+        <label>Passkey Public Key</label>
+        <input id="step2-key" type="text" />
+        <button type="submit">Sign</button>
+      </form>
+      <h5>Output</h5>
+      <pre id="signResp"></pre>
+    </article>
+    <article>
+      <h2>Step 3: Trigger Download</h2>
+      <form id="download">
+        <button type="submit">Download</button>
+      </form>
+      <h5>Output</h5>
+      <pre id="downloadResp"></pre>
+    </article>
+    <iframe id="generator" src="./iframe.html" />
+    <footer></footer>
+  </body>
+</html>
