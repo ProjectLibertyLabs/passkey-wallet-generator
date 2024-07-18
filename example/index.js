@@ -24,17 +24,20 @@ window.addEventListener(
 
 document.getElementById('generate').addEventListener('submit', (event) => {
   event.preventDefault();
-  document.getElementById('generator').contentWindow.postMessage(JSON.stringify({ action: 'generate' }));
+  document.getElementById('generator').contentWindow.postMessage(JSON.stringify({ action: 'generate' }), '*');
 });
 
 document.getElementById('sign').addEventListener('submit', (event) => {
   event.preventDefault();
   document
     .getElementById('generator')
-    .contentWindow.postMessage(JSON.stringify({ action: 'sign', key: document.getElementById('step2-key').value }));
+    .contentWindow.postMessage(
+      JSON.stringify({ action: 'sign', key: document.getElementById('step2-key').value }),
+      '*',
+    );
 });
 
 document.getElementById('download').addEventListener('submit', (event) => {
   event.preventDefault();
-  document.getElementById('generator').contentWindow.postMessage(JSON.stringify({ action: 'download' }));
+  document.getElementById('generator').contentWindow.postMessage(JSON.stringify({ action: 'download' }), '*');
 });
