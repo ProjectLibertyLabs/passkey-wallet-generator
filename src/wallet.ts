@@ -1,6 +1,6 @@
 import { Keyring } from '@polkadot/api';
 import { cryptoWaitReady, mnemonicGenerate } from '@polkadot/util-crypto';
-import { hexHasPrefix, hexToU8a, u8aToHex, u8aWrapBytes } from '@polkadot/util';
+import { hexToU8a, isHex, u8aToHex, u8aWrapBytes } from '@polkadot/util';
 
 let isReady = false;
 let SEED: string = '';
@@ -22,7 +22,7 @@ export const signPasskeyPublicKey = async (compressedPublicKeyHex: string) => {
   if (SEED.length === 0) {
     throw new Error('Keypair is not generated!');
   }
-  if (!hexHasPrefix(compressedPublicKeyHex)) {
+  if (!isHex(compressedPublicKeyHex)) {
     throw new Error('Input is not a valid hex!');
   }
   const keyring = new Keyring({ type: 'sr25519' });
