@@ -22,9 +22,9 @@
   "homepage": "https://github.com/AmplicaLabs/passkey-wallet-generator#readme",
   "description": "",
   "dependencies": {
-    "@polkadot/api": "^10.12.4",
+    "@polkadot/api": "^11.3.1",
     "@polkadot/util": "^12.6.2",
-    "@polkadot/util-crypto": "^12.6.2"
+    "@polkadot/util-crypto": "^13.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.5.0",

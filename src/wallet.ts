@@ -3,7 +3,7 @@ import { cryptoWaitReady, mnemonicGenerate } from '@polkadot/util-crypto';
 import { hexHasPrefix, hexToU8a, u8aToHex, u8aWrapBytes } from '@polkadot/util';
 
 let isReady = false;
-let SEED: String = '';
+let SEED: string = '';
 cryptoWaitReady().then(() => {
   isReady = true;
 });
@@ -37,4 +37,8 @@ export const triggerSeedPhraseDownload = () => {
     throw new Error('Keypair is not generated!');
   }
   // @TODO
+};
+
+export const testHelperResetState = () => {
+  SEED = '';
 };
