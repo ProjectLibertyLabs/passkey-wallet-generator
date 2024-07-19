@@ -2,6 +2,9 @@ import { Keyring } from '@polkadot/keyring';
 import { cryptoWaitReady, mnemonicGenerate } from '@polkadot/util-crypto';
 import { hexToU8a, isHex, u8aToHex, u8aWrapBytes } from '@polkadot/util';
 
+
+const keyring = new Keyring({ type: 'sr25519' });
+
 let isReady = false;
 let SEED: string = '';
 cryptoWaitReady().then(() => {
@@ -13,8 +16,7 @@ export const generateAndReturnPublicKey = async () => {
     throw new Error('Library is not loaded yet!');
   }
   SEED = mnemonicGenerate();
-  const keyring = new Keyring({ type: 'sr25519' });
-  const pair = keyring.addFromMnemonic(SEED);
+  const pair = keyring.createFromUri(SEED);
   return u8aToHex(pair.publicKey);
 };
 
@@ -25,7 +27,6 @@ export const signPasskeyPublicKey = async (compressedPublicKeyHex: string) => {
   if (!isHex(compressedPublicKeyHex)) {
     throw new Error('Input is not a valid hex!');
   }
-  const keyring = new Keyring({ type: 'sr25519' });
   const pair = keyring.createFromUri(SEED);
   let payloadHex = hexToU8a(compressedPublicKeyHex);
   let wrapped = u8aWrapBytes(payloadHex);
