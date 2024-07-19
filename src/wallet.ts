@@ -36,7 +36,8 @@ export const triggerSeedPhraseDownload = () => {
   if (SEED.length === 0) {
     throw new Error('Keypair is not generated!');
   }
-  // @TODO
+  let seedData = JSON.stringify({ seed: SEED, whenCreated: new Date().getTime() });
+  return seedData;
 };
 
 export const testHelperResetState = () => {
