@@ -10,9 +10,6 @@ on:
         description: 'Tag version'
         required: true
         default: 'v0.0.1'
-  pull_request:
-    branches:
-      - main
 
 env:
   NODE_VERSION: 20
