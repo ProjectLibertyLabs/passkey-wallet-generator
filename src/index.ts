@@ -15,31 +15,53 @@ interface ActionDownload {
 
 type ActionMsg = ActionGenerate | ActionSign | ActionDownload;
 
-// Only allowed in iframe mode
-if (window.parent) {
-  window.addEventListener(
-    'message',
-    (event) => {
-      // Add an origin URL check
-      // if (event.origin !== "http://example.org:8080") return;
-      try {
-        const msg = typeof event.data === 'string' ? (JSON.parse(event.data) as ActionMsg) : event.data;
-        switch (msg.action) {
-          case 'generate':
-            generate();
-            break;
-          case 'sign':
-            sign(msg.key);
-            break;
-          case 'download':
-            download();
-            break;
-        }
-      } catch (_e: any) {
-        // Do nothing, as this isn't a message for us.
-      }
-      return;
-    },
-    false,
-  );
+let originUrls: URL[] = [];
+let eventRegistered = false;
+
+export function initialize(acceptedOriginUrls: string[]) {
+  if (acceptedOriginUrls.length === 0) {
+    throw new Error('No accepted origin url is provided.');
+  }
+  originUrls = acceptedOriginUrls.map((url: string) => new URL(url));
+
+  // Only allowed in iframe mode
+  if (window.parent) {
+    // only registering once
+    if (!eventRegistered) {
+      eventRegistered = true;
+
+      window.addEventListener(
+        'message',
+        (event) => {
+          if (!isValidOrigin(event.origin)) {
+            console.log('could not find for ', event.origin, originUrls);
+            return;
+          }
+          try {
+            const msg = typeof event.data === 'string' ? (JSON.parse(event.data) as ActionMsg) : event.data;
+            switch (msg.action) {
+              case 'generate':
+                generate(event.origin);
+                break;
+              case 'sign':
+                sign(event.origin, msg.key);
+                break;
+              case 'download':
+                download(event.origin);
+                ``;
+                break;
+            }
+          } catch (_e: any) {
+            // Do nothing, as this isn't a message for us.
+          }
+          return;
+        },
+        false,
+      );
+    }
+  }
 }
+
+const isValidOrigin = (origin: string) => {
+  return originUrls.find((url) => url.origin === origin);
+};
