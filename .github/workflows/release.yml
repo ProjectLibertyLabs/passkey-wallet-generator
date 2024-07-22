@@ -34,7 +34,7 @@ jobs:
         shell: bash
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: ${{ env.ASSET_RELEASE_NAME}}-${{ env.ASSET_RELEASE_VERSION }}.tar.gz
           name: ${{ env.ASSET_RELEASE_NAME}}-${{ env.ASSET_RELEASE_VERSION }}
