@@ -6,3 +6,4 @@ dev/
 .idea*
 .idea/
 .vscode/
+.DS_Store
