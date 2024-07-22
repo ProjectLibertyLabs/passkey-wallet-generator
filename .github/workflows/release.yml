@@ -25,25 +25,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Build wallet generator
         run: npm run build
-
-      - name: Bundle archive
-        run: |
-          tar -czf ${{ env.ASSET_RELEASE_NAME}}-${{ env.ASSET_RELEASE_VERSION }}.tar.gz dist/wallet-generator.js
-        shell: bash
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ env.ASSET_RELEASE_NAME}}-${{ env.ASSET_RELEASE_VERSION }}.tar.gz
-          name: ${{ env.ASSET_RELEASE_NAME}}-${{ env.ASSET_RELEASE_VERSION }}
-
-      - name: Release
-        uses: xresloader/upload-to-github-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.ASSET_RELEASE_VERSION }}
-          file: ${{ env.ASSET_RELEASE_NAME}}-${{ env.ASSET_RELEASE_VERSION }}.tar.gz
-          overwrite: true
+          path: dist/wallet-generator.js
+          name: ${{ env.ASSET_RELEASE_NAME }}-${{ env.ASSET_RELEASE_TAG_VERSION }}
