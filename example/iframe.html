@@ -6,5 +6,16 @@
     <script src="./dist/src/index.js"></script>
   </head>
   <body></body>
-  <script src="./dist/src/index.js" onload="GENERATOR.initialize(['http://localhost:3000/'])" async defer></script>
+  <script>
+    // Callback function that would be executed when the download is requested
+    function onDownload(exportedSeed) {
+      console.log('Downloading Seed : ', exportedSeed);
+    }
+  </script>
+  <script
+    src="./dist/src/index.js"
+    onload="GENERATOR.initialize(['http://localhost:3000/'], onDownload)"
+    async
+    defer
+  ></script>
 </html>

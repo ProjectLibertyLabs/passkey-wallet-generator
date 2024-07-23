@@ -20,8 +20,7 @@ export const sign = async (origin: string, publicKey: string) => {
 
 export const download = (origin: string) => {
   try {
-    triggerSeedPhraseDownload();
-    parent.postMessage({ resp: 'download', error: false }, origin);
+    return triggerSeedPhraseDownload();
   } catch (e: any) {
     parent.postMessage({ resp: 'download', error: true, message: e.message }, origin);
   }

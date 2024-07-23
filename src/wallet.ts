@@ -37,6 +37,7 @@ export const triggerSeedPhraseDownload = () => {
     throw new Error('Keypair is not generated!');
   }
   // @TODO
+  return SEED;
 };
 
 export const testHelperResetState = () => {

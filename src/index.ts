@@ -18,7 +18,7 @@ type ActionMsg = ActionGenerate | ActionSign | ActionDownload;
 let originUrls: URL[] = [];
 let eventRegistered = false;
 
-export function initialize(acceptedOriginUrls: string[]) {
+export function initialize(acceptedOriginUrls: string[], downloadCallback) {
   if (acceptedOriginUrls.length === 0) {
     throw new Error('No accepted origin url is provided.');
   }
@@ -47,8 +47,10 @@ export function initialize(acceptedOriginUrls: string[]) {
                 sign(event.origin, msg.key);
                 break;
               case 'download':
-                download(event.origin);
-                ``;
+                let exported = download(event.origin);
+                if (exported != undefined && exported.length > 0) {
+                  downloadCallback(exported);
+                }
                 break;
             }
           } catch (_e: any) {
