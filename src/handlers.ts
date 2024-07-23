@@ -18,9 +18,12 @@ export const sign = async (origin: string, publicKey: string) => {
   }
 };
 
-export const download = (origin: string) => {
+export const download = (origin: string, downloadCallback: (exported: string) => void) => {
   try {
-    return triggerSeedPhraseDownload();
+    const exported = triggerSeedPhraseDownload();
+    if (exported != undefined && exported.length > 0) {
+      downloadCallback(exported);
+    }
   } catch (e: any) {
     parent.postMessage({ resp: 'download', error: true, message: e.message }, origin);
   }

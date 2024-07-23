@@ -9,12 +9,22 @@
   <script>
     // Callback function that would be executed when the download is requested
     function onDownload(exportedSeed) {
-      console.log('Downloading Seed : ', exportedSeed);
+      const fileToSave = new Blob([exportedSeed], {
+        type: 'application/json',
+      });
+      const url = window.URL.createObjectURL(fileToSave);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = 'account-key.json';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
     }
   </script>
   <script
     src="./dist/src/index.js"
-    onload="GENERATOR.initialize(['http://localhost:3000/'], onDownload)"
+    onload="GENERATOR.initialize(['http://127.0.0.1:3000', 'http://localhost:3000'], onDownload)"
     async
     defer
   ></script>
