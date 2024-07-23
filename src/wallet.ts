@@ -41,7 +41,7 @@ export const triggerSeedPhraseDownload = () => {
     seed: SEED,
     whenCreated: new Date().getTime(),
     encoding: {
-      content: ['pkcs8', 'sr25519'],
+      content: ['plaintext'],
     },
     address: pair.address,
   };
