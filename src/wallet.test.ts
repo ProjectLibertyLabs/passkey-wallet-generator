@@ -1,5 +1,10 @@
 import { expect, describe, it, beforeEach } from 'vitest';
-import { generateAndReturnPublicKey, signPasskeyPublicKey, testHelperResetState } from './wallet.js';
+import {
+  generateAndReturnPublicKey,
+  signPasskeyPublicKey,
+  testHelperResetState,
+  triggerSeedPhraseDownload,
+} from './wallet.js';
 import { isHex } from '@polkadot/util';
 import { signatureVerify } from '@polkadot/util-crypto';
 
@@ -44,10 +49,19 @@ describe('signPasskeyPublicKey', () => {
   });
 });
 
-// describe('triggerSeedPhraseDownload', () => {
-//   it('It should throw error if key is not generated', async () => {
-//     expect(triggerSeedPhraseDownload).rejects.toThrowError(
-//         /^Keypair is not generated!$/,
-//     );
-//   });
-// });
+describe('triggerSeedPhraseDownload', () => {
+  it('should throw error if key is not generated', () => {
+    expect(() => triggerSeedPhraseDownload()).toThrowError(/^Keypair is not generated!$/);
+  });
+
+  it('should return a valid JSON string if key is generated', async () => {
+    await generateAndReturnPublicKey();
+    const seedData = triggerSeedPhraseDownload();
+    const parsedData = JSON.parse(seedData);
+
+    expect(parsedData).toHaveProperty('seed');
+    expect(parsedData).toHaveProperty('whenCreated');
+    expect(typeof parsedData.seed).toBe('string');
+    expect(typeof parsedData.whenCreated).toBe('number');
+  });
+});
