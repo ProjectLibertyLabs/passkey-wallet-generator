@@ -18,7 +18,7 @@ type ActionMsg = ActionGenerate | ActionSign | ActionDownload;
 let originUrls: URL[] = [];
 let eventRegistered = false;
 
-export function initialize(acceptedOriginUrls: string[], downloadCallback) {
+export function initialize(acceptedOriginUrls: string[], downloadCallback: (exported: string) => void) {
   if (acceptedOriginUrls.length === 0) {
     throw new Error('No accepted origin url is provided.');
   }
