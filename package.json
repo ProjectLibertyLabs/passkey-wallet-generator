@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "test": "vitest",
-    "build": "npx esbuild src/index.ts --minify --bundle --outfile=dist/wallet-generator.js",
-    "dev": "esbuild src/index.ts example/index.js --bundle --outdir=example/dist --serve=3000 --watch --servedir=example",
+    "build": "npx esbuild src/index.ts --minify --bundle --outfile=dist/wallet-generator.js --global-name=GENERATOR",
+    "dev": "esbuild src/index.ts example/index.js --bundle --global-name=GENERATOR --outdir=example/dist --serve=3000 --watch --servedir=example",
     "lint": "tsc --noEmit && npx eslint && npx prettier . --check",
     "format": "npx eslint --fix && npx prettier . --write"
   },
@@ -22,8 +22,8 @@
   "homepage": "https://github.com/AmplicaLabs/passkey-wallet-generator#readme",
   "description": "",
   "dependencies": {
-    "@polkadot/keyring": "^12.6.2",
-    "@polkadot/util": "^12.6.2",
+    "@polkadot/keyring": "^13.0.2",
+    "@polkadot/util": "^13.0.2",
     "@polkadot/util-crypto": "^13.0.2"
   },
   "devDependencies": {

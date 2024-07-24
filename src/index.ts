@@ -15,24 +15,64 @@ interface ActionDownload {
 
 type ActionMsg = ActionGenerate | ActionSign | ActionDownload;
 
-// Only allowed in iframe mode
-if (window.parent) {
+let originUrls: string[] = [];
+let isEventRegistered = false;
+
+/**
+ * Initializes the library with accepted origins and download callback for the generated seed
+ * @param acceptedOriginUrls
+ * @param downloadCallback
+ */
+export function initialize(acceptedOriginUrls: string[], downloadCallback: (exported: string) => void) {
+  if (acceptedOriginUrls.length === 0) {
+    throw new Error('No accepted origin url is provided.');
+  }
+
+  originUrls = verifyAndSanitizeURLs(acceptedOriginUrls);
+
+  // Only allowed in iframe mode
+  if (window.parent) {
+    // only registering once
+    if (!isEventRegistered) {
+      isEventRegistered = true;
+      registerMessageEventListener(downloadCallback);
+    }
+  }
+}
+
+export const isValidOrigin = function (origin: string): boolean {
+  return originUrls.some((url) => url === origin);
+};
+
+export const verifyAndSanitizeURLs = function (origins: string[]): string[] {
+  let result = [];
+  for (const origin of origins) {
+    // throws an error if not a valid url
+    let _ = new URL(origin);
+    result.push(origin.toLowerCase().trim());
+  }
+  return result;
+};
+
+const registerMessageEventListener = function (downloadCallback: (exported: string) => void) {
   window.addEventListener(
     'message',
     (event) => {
-      // Add an origin URL check
-      // if (event.origin !== "http://example.org:8080") return;
+      if (!isValidOrigin(event.origin)) {
+        console.log('could not find for ', event.origin, originUrls);
+        return;
+      }
       try {
         const msg = typeof event.data === 'string' ? (JSON.parse(event.data) as ActionMsg) : event.data;
         switch (msg.action) {
           case 'generate':
-            generate();
+            generate(event.origin);
             break;
           case 'sign':
-            sign(msg.key);
+            sign(event.origin, msg.key);
             break;
           case 'download':
-            download();
+            download(event.origin, downloadCallback);
             break;
         }
       } catch (_e: any) {
@@ -42,4 +82,13 @@ if (window.parent) {
     },
     false,
   );
-}
+};
+
+export const testHelperResetState = () => {
+  originUrls = [];
+  isEventRegistered = false;
+};
+
+export const testHelperSetState = (urls: string[]) => {
+  originUrls = urls;
+};
