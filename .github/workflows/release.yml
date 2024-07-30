@@ -49,4 +49,3 @@ jobs:
             Passkey Wallet Generation iFrame: ${{ env.ASSET_RELEASE_TAG_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
           files: dist/wallet-generator.js
-
