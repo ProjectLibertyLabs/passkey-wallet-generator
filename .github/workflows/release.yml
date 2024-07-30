@@ -13,7 +13,7 @@ on:
 env:
   NODE_VERSION: 20
   ASSET_RELEASE_NAME: passkey-wallet-generator
-  ASSET_RELEASE_TAG_VERSION: ${{github.event.inputs.tag || github.ref_name}}
+  ASSET_RELEASE_TAG_VERSION: ${{ github.event.inputs.tag || github.ref_name }}
 
 jobs:
   build-and-release:
@@ -38,3 +38,14 @@ jobs:
         with:
           path: dist/wallet-generator.js
           name: ${{ env.ASSET_RELEASE_NAME }}-${{ env.ASSET_RELEASE_TAG_VERSION }}
+
+      - name: Publish artifact to release
+        uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191
+        with:
+          name: ${{ env.ASSET_RELEASE_NAME }} ${{ env.ASSET_RELEASE_TAG_VERSION }}
+          prerelease: true
+          tag_name: ${{ env.ASSET_RELEASE_TAG_VERSION }}
+          body: |
+            Passkey Wallet Generation iFrame: ${{ env.ASSET_RELEASE_TAG_VERSION }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: dist/wallet-generator.js
