@@ -14,7 +14,7 @@ on:
 env:
   NODE_VERSION: 20
   ASSET_RELEASE_NAME: passkey-wallet-generator
-  ASSET_RELEASE_TAG_VERSION: ${{ github.ref }}
+  ASSET_RELEASE_TAG_VERSION: ${{github.event.inputs.tag || github.ref_name}}
 
 jobs:
   build-and-release:
