@@ -9,7 +9,6 @@ on:
       tag:
         description: 'Tag version'
         required: true
-        default: 'v0.0.1'
 
 env:
   NODE_VERSION: 20
