@@ -33,13 +33,10 @@ jobs:
       - name: Build wallet generator
         run: npm run build
 
-      - name: Zip artifact
-        run: zip -r ${{ env.ASSET_RELEASE_NAME }}-${{ env.ASSET_RELEASE_TAG_VERSION }}.zip dist/wallet-generator.js
-
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ env.ASSET_RELEASE_NAME }}-${{ env.ASSET_RELEASE_TAG_VERSION }}.zip
+          path: dist/wallet-generator.js
           name: ${{ env.ASSET_RELEASE_NAME }}-${{ env.ASSET_RELEASE_TAG_VERSION }}
 
       - name: Publish artifact to release
@@ -51,4 +48,5 @@ jobs:
           body: |
             Passkey Wallet Generation iFrame: ${{ env.ASSET_RELEASE_TAG_VERSION }}
           token: ${{ secrets.GITHUB_TOKEN }}
-          files: ${{ env.ASSET_RELEASE_NAME }}-${{ env.ASSET_RELEASE_TAG_VERSION }}.zip
+          files: dist/wallet-generator.js
+
