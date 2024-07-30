@@ -43,6 +43,5 @@ jobs:
         uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191
         with:
           prerelease: true
-
           tag_name: ${{ env.ASSET_RELEASE_TAG_VERSION }}
           files: dist/wallet-generator.js
