@@ -5,7 +5,7 @@
   "scripts": {
     "test": "vitest",
     "build": "npx esbuild src/index.ts --minify --bundle --outfile=dist/wallet-generator.js --global-name=GENERATOR",
-    "build:example": "npx esbuild example/index.js --bundle --outdir=example/dist",
+    "build:example": "npx esbuild example/index.js --bundle --outdir=example/dist/example",
     "dev": "esbuild src/index.ts example/index.js --bundle --global-name=GENERATOR --outdir=example/dist --serve=3000 --watch --servedir=example",
     "lint": "tsc --noEmit && npx eslint && npx prettier . --check",
     "format": "npx eslint --fix && npx prettier . --write"
