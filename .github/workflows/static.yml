@@ -36,7 +36,8 @@ jobs:
       - name: copy wallet-generator.js from dist to example
         run: |
           mkdir -p example/dist
-          cp dist/wallet-generator.js example/dist/wallet-generator.js
+          mkdir -p example/dist/src
+          cp dist/wallet-generator.js example/dist/src/index.js
       - name: Build
         run: npm run build:example
       - name: Setup Pages
