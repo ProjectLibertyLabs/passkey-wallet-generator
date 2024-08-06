@@ -13,14 +13,14 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AmplicaLabs/passkey-wallet-generator.git"
+    "url": "git+https://github.com/ProjectLibertyLabs/passkey-wallet-generator.git"
   },
   "author": "",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/AmplicaLabs/passkey-wallet-generator/issues"
+    "url": "https://github.com/ProjectLibertyLabs/passkey-wallet-generator/issues"
   },
-  "homepage": "https://github.com/AmplicaLabs/passkey-wallet-generator#readme",
+  "homepage": "https://github.com/ProjectLibertyLabs/passkey-wallet-generator#readme",
   "description": "",
   "dependencies": {
     "@polkadot/keyring": "^13.0.2",
