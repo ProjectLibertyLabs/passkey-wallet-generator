@@ -1,39 +1,31 @@
-import { hexToU8a, u8aToHex, u8aWrapBytes } from 'https://cdn.jsdelivr.net/npm/@polkadot/util@12.6.2/+esm';
+import { hexToU8a, u8aToHex } from 'https://cdn.jsdelivr.net/npm/@polkadot/util@12.6.2/+esm';
 import { WsProvider, ApiPromise } from 'https://cdn.jsdelivr.net/npm/@polkadot/api@10.12.6/+esm';
 
+// Singleton API and Provider
 let singletonApi;
 let singletonProvider;
 
-// Load up the api for the given provider uri
+// Load up the api for the given provider URI
 export async function loadApi(providerUri) {
-  // Singleton
   if (!providerUri && singletonApi) return singletonApi;
-  // Just asking for the singleton, but don't have it
-  if (!providerUri) {
-    return null;
-  }
-  // Handle disconnects
-  if (providerUri) {
-    if (singletonApi) {
-      await singletonApi.disconnect();
-    } else if (singletonProvider) {
-      await singletonProvider.disconnect();
-    }
-  }
+  if (!providerUri) return null;
 
-  // Singleton Provider because it starts trying to connect here.
+  if (singletonApi) await singletonApi.disconnect();
+  if (singletonProvider) await singletonProvider.disconnect();
+
   singletonProvider = new WsProvider(providerUri);
   singletonApi = await ApiPromise.create({ provider: singletonProvider, throwOnConnect: true });
   return singletonApi;
 }
 
+// SHA-256 Hashing Function
 async function sha256(message) {
   const msgBuffer = new TextEncoder().encode(message);
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
   return u8aToHex(new Uint8Array(hashBuffer));
 }
 
-// Create passkey challenge
+// Create Passkey Challenge
 export async function createPasskeyChallenge(
   frequencyUrl,
   accountPublicKey,
@@ -61,6 +53,20 @@ export async function createPasskeyChallenge(
   return challenge;
 }
 
+// Base64 URL to Uint8Array Conversion
+export const base64UrlToUint8Array = (base64Url) => {
+  // Decode base64 URL encoding to base64
+  const base64String = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+  // Convert to Uint8Array
+  const binaryString = atob(base64String);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes;
+};
+
 // Create Passkey Transaction
 export async function sendPasskeyTransaction(
   frequencyUrl,
@@ -77,23 +83,25 @@ export async function sendPasskeyTransaction(
   const passKeyPublicKeyBytes = hexToU8a(passkeyPublicKey);
   const passkeySignatureBytes = hexToU8a(passkeySignature);
   const challengeReplacer = '#rplc#';
+
   let clientDataRaw = base64UrlToUint8Array(passkeyClientData);
   let authenticatorData = base64UrlToUint8Array(passkeyAuthenticatorData);
-  // replace the challenge in the clientData with placeholder
-  const clientData = Buffer.from(clientDataRaw).toString('utf-8').replace(originalChallenge, challengeReplacer);
+
+  // Convert clientDataRaw to a string, replace challenge, and then convert back to Uint8Array
+  const clientData = new TextDecoder().decode(clientDataRaw).replace(originalChallenge, challengeReplacer);
+  const clientDataBytes = new TextEncoder().encode(clientData);
 
   const passkeyTransactionPayload = {
     passkeyPublicKey: Array.from(passKeyPublicKeyBytes),
     verifiablePasskeySignature: {
       signature: Array.from(passkeySignatureBytes),
       authenticatorData: Array.from(authenticatorData),
-      clientDataJson: Array.from(Buffer.from(clientData)),
+      clientDataJson: Array.from(clientDataBytes),
     },
     passkeyCall: passkeyCallType,
   };
+
   const payload = api.createType('PalletPasskeyPasskeyPayload', passkeyTransactionPayload);
   const tx = api.tx.passkey.passkey(payload);
   return tx.toHex();
 }
-
-export const base64UrlToUint8Array = (base64) => new Uint8Array(Buffer.from(base64, 'base64url'));
