@@ -56,7 +56,7 @@ export async function createPasskeyChallenge(
   const calculatedChallenge = sha256(passkeyCallType.toU8a());
   const challenge = {
     challenge: calculatedChallenge,
-    passkeyCall: hexToU8a(u8aToHex(passkeyCallType.toU8a())),
+    passkeyCall: u8aToHex(passkeyCallType.toU8a()),
   };
   return challenge;
 }
