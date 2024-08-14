@@ -4,6 +4,7 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Passkey Interaction Example</title>
     <script type="module" src="./dist/example/index.js"></script>
+    <script type="module" src="./api.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
   </head>
   <body style="padding: 20px">
@@ -36,9 +37,100 @@
       <h5>Output</h5>
       <pre id="downloadResp"></pre>
     </article>
+    <article>
+      <h2>Step 4: Create Passkey Challenge</h2>
+      <form id="challenge">
+        <label> Frequency Websocket URL</label>
+        <input id="step4-frequency" type="text" />
+        <label>Account Public Key</label>
+        <input id="step4-account" type="text" />
+        <label>Nonce</label>
+        <input id="step4-nonce" type="text" />
+        <label>Account Ownership Proof</label>
+        <input id="step4-signature" type="text" />
+        <label>Balance Transfer Tx Hash</label>
+        <input id="step4-tx" type="text" />
+        <button type="submit">Create Challenge</button>
+      </form>
+      <h5>Output</h5>
+      <pre id="challengeResp"></pre>
+    </article>
+    <article>
+      <h2>Step 5: Send Passkey Transaction</h2>
+      <form id="transaction">
+        <label> Frequency Websocket URL</label>
+        <input id="step4-frequency" type="text" />
+        <label>Passkey Public Key</label>
+        <input id="step5-key" type="text" />
+        <label>Original Challenge</label>
+        <input id="step5-challenge" type="text" />
+        <label>Passkey Signature</label>
+        <input id="step5-signature" type="text" />
+        <label>Passkey Authenticator Data</label>
+        <input id="step5-authenticator" type="text" />
+        <label>Passkey Client Data</label>
+        <input id="step5-client" type="text" />
+        <label>Passkey Call</label>
+        <input id="step5-call" type="text" />
+        <button type="submit">Send Transaction</button>
+      </form>
+      <h5>Output</h5>
+      <pre id="transactionResp"></pre>
+    </article>
     <iframe id="generator" src="./iframe.html">
       <p>Your browser does not support iframes. Please use another browser!</p>
     </iframe>
     <footer></footer>
+
+    <script type="module">
+      import { createPasskeyChallenge } from './api.js';
+
+      // Step 4: Passkey Challenge
+      document.getElementById('challenge').addEventListener('submit', async (event) => {
+        event.preventDefault();
+    
+        const frequency = document.getElementById('step4-frequency').value;
+        const accountPublicKey = document.getElementById('step4-account').value;
+        const nonce = document.getElementById('step4-nonce').value;
+        const accountOwnershipProof = document.getElementById('step4-signature').value;
+        const balanceTransferTxHash = document.getElementById('step4-tx').value;
+
+        const challengeResponse = await createPasskeyChallenge(
+          frequency,
+          accountPublicKey,
+          nonce,
+          accountOwnershipProof,
+          balanceTransferTxHash,
+        );
+
+        document.getElementById('challengeResp').innerHTML = JSON.stringify(challengeResponse, null, 2);
+      });
+
+      // Step 5: Send Passkey Transaction
+      document.getElementById('transaction').addEventListener('submit', async (event) => {
+        event.preventDefault();
+    
+        const frequency = document.getElementById('step4-frequency').value;
+        const passkeyPublicKey = document.getElementById('step5-key').value;
+        const originalChallenge = document.getElementById('step5-challenge').value;
+        const passkeySignature = document.getElementById('step5-signature').value;
+        const passkeyAuthenticatorData = document.getElementById('step5-authenticator').value;
+        const passkeyClientData = document.getElementById('step5-client').value;
+        const passkeyCall = document.getElementById('step5-call').value;
+
+        const transactionResponse = await sendPasskeyTransaction(
+          frequency,
+          passkeyPublicKey,
+          originalChallenge,
+          passkeySignature,
+          passkeyAuthenticatorData,
+          passkeyClientData,
+          passkeyCall,
+        );
+
+        document.getElementById('transactionResp').innerHTML = JSON.stringify(transactionResponse, null, 2);
+      });
+
+    </script>
   </body>
 </html>
