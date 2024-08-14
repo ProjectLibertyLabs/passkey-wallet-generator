@@ -53,7 +53,7 @@ export async function createPasskeyChallenge(
     call: ext_call_type,
   };
   const passkeyCallType = api.createType('PalletPasskeyPasskeyCall', passkeyCall);
-  const calculatedChallenge = sha256(passkeyCallType.toU8a());
+  const calculatedChallenge = await sha256(passkeyCallType.toU8a());
   const challenge = {
     challenge: calculatedChallenge,
     passkeyCall: u8aToHex(passkeyCallType.toU8a()),
