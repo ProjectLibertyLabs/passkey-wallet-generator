@@ -88,7 +88,7 @@
       // Step 4: Passkey Challenge
       document.getElementById('challenge').addEventListener('submit', async (event) => {
         event.preventDefault();
-    
+
         const frequency = document.getElementById('step4-frequency').value;
         const accountPublicKey = document.getElementById('step4-account').value;
         const nonce = document.getElementById('step4-nonce').value;
@@ -109,7 +109,7 @@
       // Step 5: Send Passkey Transaction
       document.getElementById('transaction').addEventListener('submit', async (event) => {
         event.preventDefault();
-    
+
         const frequency = document.getElementById('step4-frequency').value;
         const passkeyPublicKey = document.getElementById('step5-key').value;
         const originalChallenge = document.getElementById('step5-challenge').value;
@@ -130,7 +130,6 @@
 
         document.getElementById('transactionResp').innerHTML = JSON.stringify(transactionResponse, null, 2);
       });
-
     </script>
   </body>
 </html>
