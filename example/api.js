@@ -106,14 +106,33 @@ export async function sendPasskeyTransaction(
   const tx = api.tx.passkey.passkey(payload);
   return tx.toHex();
 }
-
 export const credentialPublicKeyCborToCompressedKey = (credentialPublicKey) => {
-  let decoded = cbor.decode(credentialPublicKey);
-  let x = decoded.get(-2);
-  let y = decoded.get(-3);
-  let tag = (y[y.length - 1] & 1) === 1 ? 3 : 2;
-  let result = new Uint8Array(33);
-  result[0] = tag;
-  x.copy(result, 1, 0, 32);
-  return result;
+  try {
+    // Decode the CBOR data
+    const decoded = cbor.decode(credentialPublicKey);
+
+    // Ensure decoded data is a Map and has expected keys
+    if (!(decoded instanceof Map) || !decoded.has(-2) || !decoded.has(-3)) {
+      throw new Error('Unexpected CBOR structure');
+    }
+
+    // Extract x and y coordinates from the decoded CBOR map
+    const x = decoded.get(-2);
+    const y = decoded.get(-3);
+
+    // Determine the tag based on the last bit of y
+    const tag = (y[y.length - 1] & 1) === 1 ? 3 : 2;
+
+    // Create a Uint8Array to store the compressed key
+    const result = new Uint8Array(33);
+    result[0] = tag;
+
+    // Copy x into the result starting at index 1
+    result.set(x, 1);
+
+    return result;
+  } catch (error) {
+    console.error('Error decoding CBOR data:', error);
+    throw new Error('Failed to decode CBOR data properly');
+  }
 };
