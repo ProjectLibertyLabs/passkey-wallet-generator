@@ -1,6 +1,5 @@
 import { hexToU8a, u8aToHex } from 'https://cdn.jsdelivr.net/npm/@polkadot/util@12.6.2/+esm';
 import { WsProvider, ApiPromise } from 'https://cdn.jsdelivr.net/npm/@polkadot/api@10.12.6/+esm';
-import cbor from 'https://cdn.jsdelivr.net/npm/cbor-x/dist/index.js/+esm';
 
 // Singleton API and Provider
 let singletonApi;
@@ -93,7 +92,7 @@ export async function sendPasskeyTransaction(
   const clientDataBytes = new TextEncoder().encode(clientData);
 
   const passkeyTransactionPayload = {
-    passkeyPublicKey: Array.from(credentialPublicKeyCborToCompressedKey(passKeyPublicKeyBytes)),
+    passkeyPublicKey: Array.from(passKeyPublicKeyBytes),
     verifiablePasskeySignature: {
       signature: Array.from(passkeySignatureBytes),
       authenticatorData: Array.from(authenticatorData),
@@ -106,14 +105,3 @@ export async function sendPasskeyTransaction(
   const tx = api.tx.passkey.passkey(payload);
   return tx.toHex();
 }
-
-export const credentialPublicKeyCborToCompressedKey = (credentialPublicKey) => {
-  let decoded = cbor.decode(credentialPublicKey);
-  let x = decoded.get(-2);
-  let y = decoded.get(-3);
-  let tag = (y[y.length - 1] & 1) === 1 ? 3 : 2;
-  let result = new Uint8Array(33);
-  result[0] = tag;
-  x.copy(result, 1, 0, 32);
-  return result;
-};
