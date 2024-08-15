@@ -9,10 +9,10 @@
   </head>
   <body style="padding: 20px">
     <header>
-      <h1>Example</h1>
+      <h1>Example Passkey Wallet Generator with Frequency</h1>
     </header>
     <article>
-      <h2>Step 1: Generate</h2>
+      <h2>Step 1: Generate Account</h2>
       <form id="generate">
         <button type="submit">Generate</button>
       </form>
@@ -20,9 +20,9 @@
       <pre id="generateResp"></pre>
     </article>
     <article>
-      <h2>Step 2: Sign</h2>
+      <h2>Step 2: Sign Passkey Public Key</h2>
       <form id="sign">
-        <label>Passkey Public Key</label>
+        <label>Passkey Public Key(hex)</label>
         <input id="step2-key" type="text" />
         <button type="submit">Sign</button>
       </form>
@@ -30,7 +30,7 @@
       <pre id="signResp"></pre>
     </article>
     <article>
-      <h2>Step 3: Trigger Download</h2>
+      <h2>Step 3: Download Account Seed</h2>
       <form id="download">
         <button type="submit">Download</button>
       </form>
@@ -45,13 +45,13 @@
           <option value="ws://127.0.0.1:9944">Frequency Local</option>
           <option value="wss://0.rpc.testnet.amplica.io">Frequency Paseo</option>
         </select>
-        <label>Account Public Key</label>
+        <label>Account Public Key(hex)</label>
         <input id="step4-account" type="text" />
-        <label>Nonce</label>
+        <label>Nonce(number)</label>
         <input id="step4-nonce" type="text" />
-        <label>Account Ownership Proof</label>
+        <label>Account Ownership Proof(hex)</label>
         <input id="step4-signature" type="text" />
-        <label>Balance Transfer Tx Hash</label>
+        <label>Balance Transfer Tx Hash(hex)</label>
         <input id="step4-tx" type="text" />
         <button type="submit">Create Challenge</button>
       </form>
@@ -59,19 +59,19 @@
       <pre id="challengeResp"></pre>
     </article>
     <article>
-      <h2>Step 5: Send Passkey Transaction</h2>
+      <h2>Step 5: Create Passkey Transaction</h2>
       <form id="transaction">
-        <label>Passkey Public Key</label>
+        <label>Passkey Public Key(hex)</label>
         <input id="step5-key" type="text" />
-        <label>Original Challenge</label>
+        <label>Original Challenge(hex)</label>
         <input id="step5-challenge" type="text" />
-        <label>Passkey Signature</label>
+        <label>Passkey Signature(hex)</label>
         <input id="step5-signature" type="text" />
-        <label>Passkey Authenticator Data</label>
+        <label>Passkey Authenticator Data(base64url)</label>
         <input id="step5-authenticator" type="text" />
-        <label>Passkey Client Data</label>
+        <label>Passkey Client Data(base64url)</label>
         <input id="step5-client" type="text" />
-        <label>Passkey Call</label>
+        <label>Passkey Call(hex)</label>
         <input id="step5-call" type="text" />
         <button type="submit">Send Transaction</button>
       </form>
