@@ -25,7 +25,8 @@
   "dependencies": {
     "@polkadot/keyring": "^13.0.2",
     "@polkadot/util": "^13.0.2",
-    "@polkadot/util-crypto": "^13.0.2"
+    "@polkadot/util-crypto": "^13.0.2",
+    "cbor": "^9.0.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.5.0",

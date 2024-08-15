@@ -1,30 +1,31 @@
 import { secp256r1 } from '@noble/curves/p256';
 import { hexToU8a, u8aToHex, u8aWrapBytes } from '@polkadot/util';
 import { sha256 } from '@noble/hashes/sha256';
+import { Buffer } from 'buffer';
+import cbor from 'cbor';
 
 // Call this function to create passkeys
-// This function returns an object with two properties:
-// passKeyPrivateKey: the private key
-// passKeyPublicKey: the public key
 export function createPassKeys() {
   const passKeyPrivateKey = secp256r1.utils.randomPrivateKey();
   const passKeyPublicKey = secp256r1.getPublicKey(passKeyPrivateKey, true);
-  const passKeyPublicKeyHex = u8aToHex(passKeyPublicKey);
+  // do a cbor encode of the public key
+  const encodedPublicKey = cbor.encode(passKeyPublicKey);
+  const passKeyPublicKeyHex = u8aToHex(new Uint8Array(encodedPublicKey));
   const passKeyPrivateKeyHex = u8aToHex(passKeyPrivateKey);
   return { passKeyPrivateKey: passKeyPrivateKeyHex, passKeyPublicKey: passKeyPublicKeyHex };
 }
 
 // Call this function to sign a hex message with a private key
-// This function returns the signature as a hex string
-export function signAccountPublicKey(privateKey, accountPublicKeyHex) {
+export function signAccountPublicKey(privateKeyHex, accountPublicKeyHex) {
+  const privateKey = hexToU8a(privateKeyHex);
   const accountPublicKeyBytes = hexToU8a(accountPublicKeyHex);
   const signature = secp256r1.sign(u8aWrapBytes(accountPublicKeyBytes), privateKey).toDERRawBytes();
-  return u8aWrapBytes(signature);
+  return u8aToHex(signature);
 }
 
 // Call this function to sign a Frequency Passkey Challenge
-// This function returns the signature as a hex string
-export function signPasskeyChallenge(privateKey, passkeyChallengeHex) {
+export function signPasskeyChallenge(privateKeyHex, passkeyChallengeHex) {
+  const privateKey = hexToU8a(privateKeyHex);
   const authenticatorDataRaw = 'WJ8JTNbivTWn-433ubs148A7EgWowi4SAcYBjLWfo1EdAAAAAA';
   const replacedClientDataRaw =
     'eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiI3JwbGMjIiwib3JpZ2luIjoiaHR0cHM6Ly9wYXNza2V5LmFtcGxpY2EuaW86ODA4MCIsImNyb3NzT3JpZ2luIjpmYWxzZSwiYWxnIjoiSFMyNTYifQ';
@@ -44,9 +45,7 @@ export function signPasskeyChallenge(privateKey, passkeyChallengeHex) {
 
 // Base64 URL to Uint8Array Conversion
 export const base64UrlToUint8Array = (base64Url) => {
-  // Decode base64 URL encoding to base64
   const base64String = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  // Convert to Uint8Array
   const binaryString = atob(base64String);
   const len = binaryString.length;
   const bytes = new Uint8Array(len);
@@ -56,9 +55,36 @@ export const base64UrlToUint8Array = (base64Url) => {
   return bytes;
 };
 
-// Create Passkey
-console.log(createPassKeys());
-// Sign Account Public Key
-console.log(signAccountPublicKey('TODO', 'TODO'));
-// Sign Passkey Challenge
-console.log(signPasskeyChallenge('TODO', 'TODO'));
+// Main function to handle command line arguments
+const main = () => {
+  const args = process.argv.slice(2);
+  const command = args[0];
+
+  switch (command) {
+    case 'createPassKeys':
+      console.log(createPassKeys());
+      break;
+
+    case 'signAccountPublicKey':
+      if (args.length !== 3) {
+        console.error('Usage: node index.js signAccountPublicKey <privateKeyHex> <accountPublicKeyHex>');
+        process.exit(1);
+      }
+      console.log(signAccountPublicKey(args[1], args[2]));
+      break;
+
+    case 'signPasskeyChallenge':
+      if (args.length !== 3) {
+        console.error('Usage: node index.js signPasskeyChallenge <privateKeyHex> <passkeyChallengeHex>');
+        process.exit(1);
+      }
+      console.log(signPasskeyChallenge(args[1], args[2]));
+      break;
+
+    default:
+      console.error('Unknown command');
+      process.exit(1);
+  }
+};
+
+main();
