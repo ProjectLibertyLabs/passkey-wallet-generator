@@ -31,6 +31,7 @@ document.getElementById('generate').addEventListener('submit', (event) => {
 
 document.getElementById('sign').addEventListener('submit', (event) => {
   event.preventDefault();
+  document.getElementById('step5-key').value = document.getElementById('step2-key').value;
   document
     .getElementById('generator')
     .contentWindow.postMessage(
