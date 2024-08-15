@@ -7,9 +7,11 @@ window.addEventListener(
     try {
       const msg = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
       if (msg.resp === 'generate') {
+        document.getElementById('step4-account').value = msg.result;
         document.getElementById('generateResp').innerHTML = JSON.stringify(msg, null, 2);
       }
       if (msg.resp === 'sign') {
+        document.getElementById('step4-signature').value = msg.result;
         document.getElementById('signResp').innerHTML = JSON.stringify(msg, null, 2);
       }
       if (msg.resp === 'download') {
