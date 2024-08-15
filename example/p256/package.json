@@ -1,0 +1,17 @@
+{
+  "name": "p256",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@noble/curves": "^1.5.0",
+    "@polkadot/util": "^13.0.2"
+  }
+}
