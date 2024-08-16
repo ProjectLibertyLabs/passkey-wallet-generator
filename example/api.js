@@ -103,34 +103,50 @@ export async function sendPasskeyTransaction(
   };
 
   const payload = api.createType('PalletPasskeyPasskeyPayload', passkeyTransactionPayload);
-  const tx = api.tx.passkey.passkey(payload);
+  const tx = api.tx.passkey.proxy(payload);
   return tx.toHex();
 }
+
 export const credentialPublicKeyCborToCompressedKey = (credentialPublicKey) => {
   try {
     // Decode the CBOR data
     const decoded = cbor.decode(credentialPublicKey);
 
-    // Ensure decoded data is a Map and has expected keys
-    if (!(decoded instanceof Map) || !decoded.has(-2) || !decoded.has(-3)) {
-      throw new Error('Unexpected CBOR structure');
+    // Check if the decoded data is a Uint8Array (likely just the x and y concatenated)
+    if (decoded instanceof Uint8Array) {
+      // If you know the format, extract x and y
+      const x = decoded.slice(0, 32); // Assuming first 32 bytes are x
+      const y = decoded.slice(32); // Assuming next bytes are y
+
+      // Determine the tag based on the last bit of y
+      const tag = (y[y.length - 1] & 1) === 1 ? 3 : 2;
+
+      // Create a Uint8Array to store the compressed key
+      const result = new Uint8Array(33);
+      result[0] = tag;
+
+      // Copy x into the result starting at index 1
+      result.set(x, 1);
+
+      return result;
+    } else if (decoded instanceof Map) {
+      // Handle Map as previously explained
+      if (!decoded.has(-2) || !decoded.has(-3)) {
+        throw new Error('Unexpected CBOR structure');
+      }
+
+      const x = decoded.get(-2);
+      const y = decoded.get(-3);
+
+      const tag = (y[y.length - 1] & 1) === 1 ? 3 : 2;
+      const result = new Uint8Array(33);
+      result[0] = tag;
+      result.set(x, 1);
+
+      return result;
+    } else {
+      throw new Error('Unexpected decoded CBOR structure');
     }
-
-    // Extract x and y coordinates from the decoded CBOR map
-    const x = decoded.get(-2);
-    const y = decoded.get(-3);
-
-    // Determine the tag based on the last bit of y
-    const tag = (y[y.length - 1] & 1) === 1 ? 3 : 2;
-
-    // Create a Uint8Array to store the compressed key
-    const result = new Uint8Array(33);
-    result[0] = tag;
-
-    // Copy x into the result starting at index 1
-    result.set(x, 1);
-
-    return result;
   } catch (error) {
     console.error('Error decoding CBOR data:', error);
     throw new Error('Failed to decode CBOR data properly');
