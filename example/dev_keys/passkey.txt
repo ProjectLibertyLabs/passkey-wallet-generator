@@ -1,4 +1,0 @@
-{
-  passKeyPrivateKey: '0x40e24f51aaecfbafa0db271d5134b1f839474de77cc04968613532c3f1873dec',
-  passKeyPublicKey: '0xd8405821034468625b6a3dc0e4fe2c3834a685d74ef45ee71c383b0e4c5a2df540e79443c7'
-}
