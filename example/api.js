@@ -23,7 +23,7 @@ export async function loadApi(providerUri) {
 async function sha256(message) {
   const msgBuffer = new TextEncoder().encode(message);
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  return u8aToHex(new Uint8Array(hashBuffer));
+  return new Uint8Array(hashBuffer);
 }
 
 // Create Passkey Challenge
@@ -46,7 +46,7 @@ export async function createPasskeyChallenge(
     call: ext_call_type,
   };
   const passkeyCallType = api.createType('PalletPasskeyPasskeyCall', passkeyCall);
-  const calculatedChallenge = await sha256(passkeyCallType.toU8a());
+  const calculatedChallenge = u8aToHex(await sha256(passkeyCallType.toU8a()));
   const challenge = {
     challenge: calculatedChallenge,
     passkeyCall: u8aToHex(passkeyCallType.toU8a()),
@@ -152,3 +152,80 @@ export const credentialPublicKeyCborToCompressedKey = (credentialPublicKey) => {
     throw new Error('Failed to decode CBOR data properly');
   }
 };
+
+// Call this function to create passkeys
+export async function createPassKeys() {
+  const keyPair = await crypto.subtle.generateKey(
+    {
+      name: 'ECDSA',
+      namedCurve: 'P-256',
+    },
+    true,
+    ['sign', 'verify'],
+  );
+
+  const publicKey = await crypto.subtle.exportKey('raw', keyPair.publicKey);
+  const privateKey = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+
+  const encodedPublicKey = cbor.encode(new Uint8Array(publicKey));
+  return {
+    passKeyPrivateKey: u8aToHex(new Uint8Array(privateKey)),
+    passKeyPublicKey: u8aToHex(encodedPublicKey),
+  };
+}
+
+// Call this function to sign passkey challenges
+export async function signPasskeyChallenge(privateKeyHex, passkeyChallengeHex) {
+  const privateKey = await importPrivateKey(privateKeyHex);
+  const authenticatorDataRaw = 'WJ8JTNbivTWn-433ubs148A7EgWowi4SAcYBjLWfo1EdAAAAAA';
+  const replacedClientDataRaw =
+    'eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiI3JwbGMjIiwib3JpZ2luIjoiaHR0cHM6Ly9wYXNza2V5LmFtcGxpY2EuaW86ODA4MCIsImNyb3NzT3JpZ2luIjpmYWxzZSwiYWxnIjoiSFMyNTYifQ';
+  const challengeReplacer = '#rplc#';
+  let clientData = base64UrlToUint8Array(replacedClientDataRaw);
+  let authenticatorData = base64UrlToUint8Array(authenticatorDataRaw);
+  const passkeyChallengeBytes = hexToU8a(passkeyChallengeHex);
+
+  // Convert passkeyChallengeBytes to a base64 URL-encoded string
+  const calculatedChallengeBase64url = btoa(String.fromCharCode(...passkeyChallengeBytes))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+
+  // Replace the placeholder in the clientData JSON string
+  const clientDataJSON = new TextDecoder().decode(clientData).replace(challengeReplacer, calculatedChallengeBase64url);
+  const clientDataBytes = new TextEncoder().encode(clientDataJSON);
+
+  // Prepare the signing payload
+  const shaClientData = await sha256(clientDataBytes);
+
+  // Concatenate authenticatorData and shaClientData
+  const dataToSign = new Uint8Array([...authenticatorData, ...shaClientData]);
+
+  // Sign the challenge using the private key
+  const passKeySignature = await crypto.subtle.sign(
+    {
+      name: 'ECDSA',
+      hash: { name: 'SHA-256' }, // Specify the hash algorithm used
+    },
+    privateKey,
+    dataToSign,
+  );
+
+  return u8aToHex(new Uint8Array(passKeySignature)); // Ensure this conversion
+}
+
+// Helper function to import a private key from a hex string
+async function importPrivateKey(privateKeyHex) {
+  const privateKeyBytes = hexToU8a(privateKeyHex);
+
+  return await crypto.subtle.importKey(
+    'pkcs8',
+    privateKeyBytes,
+    {
+      name: 'ECDSA',
+      namedCurve: 'P-256',
+    },
+    true,
+    ['sign'],
+  );
+}
