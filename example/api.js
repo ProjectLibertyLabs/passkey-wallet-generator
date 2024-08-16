@@ -104,7 +104,14 @@ export async function generatePasskeyTx(
 
   const payload = api.createType('PalletPasskeyPasskeyPayload', passkeyTransactionPayload);
   const tx = api.tx.passkey.proxy(payload);
-  return tx.toHex();
+  const txHex = tx.toHex();
+  const rpcUrl = encodeURIComponent(frequencyUrl);
+  const polkadotJsUrl = `https://polkadot.js.org/apps/?rpc=${rpcUrl}#/extrinsics/decode/${txHex}`;
+
+  return {
+    txHex,
+    polkadotJsUrl,
+  };
 }
 
 export const credentialPublicKeyCborToCompressedKey = (credentialPublicKey) => {
