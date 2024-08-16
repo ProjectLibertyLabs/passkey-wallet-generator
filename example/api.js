@@ -69,7 +69,7 @@ export const base64UrlToUint8Array = (base64Url) => {
 };
 
 // Create Passkey Transaction
-export async function sendPasskeyTransaction(
+export async function generatePasskeyTx(
   frequencyUrl,
   passkeyPublicKey,
   originalChallenge,
