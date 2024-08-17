@@ -59,12 +59,6 @@
         <input id="step4-nonce" type="text" />
         <label>Account Ownership Proof(hex)</label>
         <input id="step4-signature" type="text" />
-        <label>Balance Transfer Hash(hex)</label>
-        <input
-          id="step4-tx"
-          type="text"
-          value="0x0a0000d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d070010a5d4e8"
-        />
         <button type="submit">Create Challenge</button>
       </form>
       <h5>Output</h5>
@@ -147,14 +141,12 @@
         const accountPublicKey = document.getElementById('step4-account').value;
         const nonce = document.getElementById('step4-nonce').value;
         const accountOwnershipProof = document.getElementById('step4-signature').value;
-        const balanceTransferTxHash = document.getElementById('step4-tx').value;
 
         const challengeResponse = await createPasskeyChallenge(
           frequency,
           accountPublicKey,
           nonce,
           accountOwnershipProof,
-          balanceTransferTxHash,
         );
         document.getElementById('step5-challenge').value = challengeResponse.challenge;
         document.getElementById('step5-call').value = challengeResponse.passkeyCall;

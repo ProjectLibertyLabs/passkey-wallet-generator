@@ -27,16 +27,11 @@ async function sha256(message) {
 }
 
 // Create Passkey Challenge
-export async function createPasskeyChallenge(
-  frequencyUrl,
-  accountPublicKey,
-  nonce,
-  accountOwnershipProof,
-  balanceTransferTxHash,
-) {
+export async function createPasskeyChallenge(frequencyUrl, accountPublicKey, nonce, accountOwnershipProof) {
   const api = await loadApi(frequencyUrl);
-  const call = hexToU8a(balanceTransferTxHash);
-  const ext_call_type = api.registry.createType('Call', call);
+  const alicePublicKey = '5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY';
+  const balanceTransferTx = api.tx.balances.transferAllowDeath(alicePublicKey, 1000);
+  const ext_call_type = api.registry.createType('Call', balanceTransferTx);
   const passkeyCall = {
     accountId: accountPublicKey,
     accountNonce: nonce,
