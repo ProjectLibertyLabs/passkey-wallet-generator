@@ -7,3 +7,5 @@ dev/
 .idea/
 .vscode/
 .DS_Store
+example/p256/passkey.txt
+example/p256/signedChallenge.txt

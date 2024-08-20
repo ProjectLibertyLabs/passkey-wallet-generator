@@ -4,14 +4,23 @@
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <title>Passkey Interaction Example</title>
     <script type="module" src="./dist/example/index.js"></script>
+    <script type="module" src="./api.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
   </head>
   <body style="padding: 20px">
     <header>
-      <h1>Example</h1>
+      <h1>Example Passkey Wallet Generator with Frequency</h1>
     </header>
     <article>
-      <h2>Step 1: Generate</h2>
+      <h2>Step 1a: Generate Passkey</h2>
+      <form id="generatePasskey">
+        <button type="submit">Generate Passkey</button>
+      </form>
+      <h5>Output</h5>
+      <pre id="passkeyResp"></pre>
+    </article>
+    <article>
+      <h2>Step 1: Generate Account</h2>
       <form id="generate">
         <button type="submit">Generate</button>
       </form>
@@ -19,9 +28,9 @@
       <pre id="generateResp"></pre>
     </article>
     <article>
-      <h2>Step 2: Sign</h2>
+      <h2>Step 2: Sign Passkey Public Key</h2>
       <form id="sign">
-        <label>Passkey Public Key</label>
+        <label>Passkey Public Key(hex)</label>
         <input id="step2-key" type="text" />
         <button type="submit">Sign</button>
       </form>
@@ -29,16 +38,159 @@
       <pre id="signResp"></pre>
     </article>
     <article>
-      <h2>Step 3: Trigger Download</h2>
+      <h2>Step 3: Download Account Seed</h2>
       <form id="download">
         <button type="submit">Download</button>
       </form>
       <h5>Output</h5>
       <pre id="downloadResp"></pre>
     </article>
-    <iframe id="generator" src="./iframe.html">
+    <article>
+      <h2>Step 4: Create Passkey Challenge</h2>
+      <form id="challenge">
+        <label> Frequency WebSocket URL</label>
+        <select id="frequency">
+          <option value="ws://127.0.0.1:9944">Frequency Local</option>
+          <option value="wss://0.rpc.testnet.amplica.io">Frequency Paseo</option>
+        </select>
+        <label>Account Public Key(hex)</label>
+        <input id="step4-account" type="text" />
+        <label>Nonce(number)</label>
+        <input id="step4-nonce" type="text" />
+        <label>Account Ownership Proof(hex)</label>
+        <input id="step4-signature" type="text" />
+        <button type="submit">Create Challenge</button>
+      </form>
+      <h5>Output</h5>
+      <pre id="challengeResp"></pre>
+    </article>
+    <article>
+      <h2>Step 5a: Sign the Passkey Challenge</h2>
+      <form id="signChallenge">
+        <label>Private Key(hex)</label>
+        <input id="step5a-privateKey" type="text" />
+        <label>Passkey Challenge(hex)</label>
+        <input id="step5a-challenge" type="text" />
+        <button type="submit">Sign Challenge</button>
+      </form>
+      <h5>Output</h5>
+      <pre id="signChallengeResp"></pre>
+    </article>
+    <article>
+      <h2>Step 5: Create Passkey Transaction</h2>
+      <form id="transaction">
+        <label>Passkey Public Key(hex)</label>
+        <input id="step5-key" type="text" />
+        <label>Original Challenge(hex)</label>
+        <input id="step5-challenge" type="text" />
+        <label>Passkey Signature(hex)</label>
+        <input id="step5-signature" type="text" />
+        <label>Passkey Authenticator Data(base64url)</label>
+        <input id="step5-authenticator" type="text" value="WJ8JTNbivTWn-433ubs148A7EgWowi4SAcYBjLWfo1EdAAAAAA" />
+        <label>Passkey Client Data(base64url)</label>
+        <input
+          id="step5-client"
+          type="text"
+          value="eyJ0eXBlIjoid2ViYXV0aG4uZ2V0IiwiY2hhbGxlbmdlIjoiI3JwbGMjIiwib3JpZ2luIjoiaHR0cHM6Ly9wYXNza2V5LmFtcGxpY2EuaW86ODA4MCIsImNyb3NzT3JpZ2luIjpmYWxzZSwiYWxnIjoiSFMyNTYifQ"
+        />
+        <label>Passkey Call(hex)</label>
+        <input id="step5-call" type="text" />
+        <button type="submit">Generate Transaction</button>
+      </form>
+      <h5>Output</h5>
+      <pre id="transactionResp"></pre>
+    </article>
+    <iframe id="generator" src="./iframe.html" sandbox="allow-scripts allow-downloads">
       <p>Your browser does not support iframes. Please use another browser!</p>
     </iframe>
     <footer></footer>
+
+    <script type="module">
+      import { createPassKeys, createPasskeyChallenge, generatePasskeyTx, signPasskeyChallenge } from './api.js';
+      // Step 1a: Handle Passkey Generation
+      document.getElementById('generatePasskey').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        // Generate passkey
+        const passkey = await createPassKeys();
+
+        // Display the generated passkey
+        document.getElementById('passkeyResp').innerHTML = JSON.stringify(passkey, null, 2);
+
+        // Automatically fill the public key in the relevant forms
+        document.getElementById('step2-key').value = passkey.passKeyPublicKey;
+        document.getElementById('step5a-privateKey').value = passkey.passKeyPrivateKey;
+        document.getElementById('step5-key').value = passkey.passKeyPublicKey;
+      });
+      // Step 1: Handle Generate Response from iframe
+      window.addEventListener('message', (event) => {
+        if (event.data && event.data.type === 'generateResult') {
+          const publicKey = event.data.publicKey;
+          document.getElementById('generateResp').textContent = publicKey;
+          document.getElementById('step4-account').value = publicKey;
+          document.getElementById('step2-key').value = publicKey;
+          document.getElementById('step5-key').value = publicKey;
+          document.getElementById('step5a-privateKey').value = event.data.privateKey;
+        }
+      });
+      // Step 4: Passkey Challenge
+      document.getElementById('challenge').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const frequency = document.getElementById('frequency').value;
+        const accountPublicKey = document.getElementById('step4-account').value;
+        const nonce = document.getElementById('step4-nonce').value;
+        const accountOwnershipProof = document.getElementById('step4-signature').value;
+
+        const challengeResponse = await createPasskeyChallenge(
+          frequency,
+          accountPublicKey,
+          nonce,
+          accountOwnershipProof,
+        );
+        document.getElementById('step5-challenge').value = challengeResponse.challenge;
+        document.getElementById('step5-call').value = challengeResponse.passkeyCall;
+        document.getElementById('step5a-challenge').value = challengeResponse.challenge;
+        document.getElementById('challengeResp').innerHTML = JSON.stringify(challengeResponse, null, 2);
+      });
+      // Step 5a: Sign Passkey Challenge
+      document.getElementById('signChallenge').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const privateKeyHex = document.getElementById('step5a-privateKey').value;
+        const passkeyChallengeHex = document.getElementById('step5a-challenge').value;
+
+        try {
+          const signature = await signPasskeyChallenge(privateKeyHex, passkeyChallengeHex);
+          document.getElementById('signChallengeResp').innerHTML = signature;
+          document.getElementById('step5-signature').value = signature;
+        } catch (error) {
+          document.getElementById('signChallengeResp').innerHTML = 'Error: ' + error.message;
+        }
+      });
+      // Step 5: Send Passkey Transaction
+      document.getElementById('transaction').addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const frequency = document.getElementById('frequency').value;
+        const passkeyPublicKey = document.getElementById('step5-key').value;
+        const originalChallenge = document.getElementById('step5-challenge').value;
+        const passkeySignature = document.getElementById('step5-signature').value;
+        const passkeyAuthenticatorData = document.getElementById('step5-authenticator').value;
+        const passkeyClientData = document.getElementById('step5-client').value;
+        const passkeyCall = document.getElementById('step5-call').value;
+
+        const transactionResponse = await generatePasskeyTx(
+          frequency,
+          passkeyPublicKey,
+          originalChallenge,
+          passkeySignature,
+          passkeyAuthenticatorData,
+          passkeyClientData,
+          passkeyCall,
+        );
+        document.getElementById('transactionResp').innerHTML = JSON.stringify(transactionResponse, null, 2);
+      });
+    </script>
   </body>
 </html>
